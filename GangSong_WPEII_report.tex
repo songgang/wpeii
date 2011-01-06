@@ -22,10 +22,14 @@
 
 \section{Introduction}
 \label{sec:intro}
-
-
-
-
+A diffeomorphism is a differentiable map with a differentiable
+inverse.  These maps form a Lie group on which a (right invariant)
+metric may be induced.  Both the metric structure and intrinsic
+regularity of the diffeomorphism group are of great value in fields
+that seek to (statistically) quantify shape and its natural variation.
+One such field is medical imaging where numerous researchers employ
+diffeomorphisms in the description and detection of disease and
+development.  
 % In this paper we discuss these papers:
 
 % Beg's LDDMM demonstrates the successfulness of diffeomorphic image registration \cite{Beg2005Computing}.
@@ -40,10 +44,19 @@
 
 \subsection{structure of the paper}
 
+First, this report will illustrate several popular algorithms for
+diffeomorphic image mapping. We describe the different variants by
+contrasting the parameterization of the diffeomorphic transformation
+model. We especially fill in the mathematical details, assuming a
+common engineering background, to aid in a complete understanding of
+the derivation of the most important equations. For completeness, we
+add important math background and derivation of most equations in the appendix. 
 
-In this report, we first illustrate several popular algorithms. We describe the different variants of diffeomorphism by comparing their parameterization of transform models. We especially fill in the mathematical details for the common engineering background for a complete understanding of the derivation of most important equations. For the completeness, we add the important math background and most derivation of equations in the appendix. 
-
-Second, we compare the relationship between these algorithms and discuss how they can be converted to each other by simplifying assumptions or changing optimization scheme etc. We show from the point of view that several large deformation algorithm are different extensions of demons algorithm. We summarize the connections between each model in a graph. Each connection will be illustrated in corresponding sections.
+Second, we compare the relationship between these algorithms and
+discuss how they can be converted to each other by simplifying
+assumptions or changing optimization scheme etc. We show that several
+large deformation algorithms may be viewed as
+extensions of a simple common image registration method, the demons algorithm. We summarize the connections between each model in a graph. Each connection will be illustrated in corresponding sections.
 
 Last, we discuss on various regularizations approaches applied in these methods and show that how they can be unified under the same framework of Soblev gradient. The regularization schemes reflect how the image similarity term interacts with transform regularization term.
 
