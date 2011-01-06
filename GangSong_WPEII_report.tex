@@ -58,15 +58,21 @@ assumptions or changing optimization scheme etc. We show that several
 large deformation algorithms may be viewed as
 extensions of a simple common image registration method, the demons algorithm. We summarize the connections between each model in a graph. Each connection will be illustrated in corresponding sections.
 
-Last, we discuss on various regularizations approaches applied in these methods and show that how they can be unified under the same framework of Soblev gradient. The regularization schemes reflect how the image similarity term interacts with transform regularization term.
+Last, we discuss various regularization approaches applied in these
+methods and show how they can be unified under the same framework
+using the Sobolev gradient. The regularization schemes reflect how the
+gradient of the image similarity term is mapped to the transformation space.
 
 
 % (Thirdly, we compare how each algorithm compute the inverse transform.)
 
 
-Our report focus in discussing the transformation models. We do not discuss in depth about other important problems in diffeomorphic image registration, like the image similarity terms, the optimization schemes, the symmetric update scheme, other interesting constraints on the transformation models (div-curl). A brief discussion is given for interested readers.
+This report focuses on the transformation models. We do not discuss in
+depth about other important problems in diffeomorphic image
+registration, like the image similarity terms, the optimization
+schemes, the symmetric update scheme or other interesting constraints on the transformation models (div-curl). A brief discussion is given for interested readers.
 
-\section{math notations}
+\section{mathematical notation}
 
 \newcommand{\vect}[1]{\mathbf{#1}}
 \newcommand{\field}[1]{\mathbf{#1}}
