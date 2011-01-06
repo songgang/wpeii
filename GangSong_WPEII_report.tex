@@ -22,10 +22,14 @@
 
 \section{Introduction}
 \label{sec:intro}
-
-
-
-
+A diffeomorphism is a differentiable map with a differentiable
+inverse.  These maps form a Lie group on which a (right invariant)
+metric may be induced.  Both the metric structure and intrinsic
+regularity of the diffeomorphism group are of great value in fields
+that seek to (statistically) quantify shape and its natural variation.
+One such field is medical imaging where numerous researchers employ
+diffeomorphisms in the description and detection of disease and
+development.  
 % In this paper we discuss these papers:
 
 % Beg's LDDMM demonstrates the successfulness of diffeomorphic image registration \cite{Beg2005Computing}.
@@ -40,20 +44,35 @@
 
 \subsection{structure of the paper}
 
+First, this report will illustrate several popular algorithms for
+diffeomorphic image mapping. We describe the different variants by
+contrasting the parameterization of the diffeomorphic transformation
+model. We especially fill in the mathematical details, assuming a
+common engineering background, to aid in a complete understanding of
+the derivation of the most important equations. For completeness, we
+add important math background and derivation of most equations in the appendix. 
 
-In this report, we first illustrate several popular algorithms. We describe the different variants of diffeomorphism by comparing their parameterization of transform models. We especially fill in the mathematical details for the common engineering background for a complete understanding of the derivation of most important equations. For the completeness, we add the important math background and most derivation of equations in the appendix. 
+Second, we compare the relationship between these algorithms and
+discuss how they can be converted to each other by simplifying
+assumptions or changing optimization scheme etc. We show that several
+large deformation algorithms may be viewed as
+extensions of a simple common image registration method, the demons algorithm. We summarize the connections between each model in a graph. Each connection will be illustrated in corresponding sections.
 
-Second, we compare the relationship between these algorithms and discuss how they can be converted to each other by simplifying assumptions or changing optimization scheme etc. We show from the point of view that several large deformation algorithm are different extensions of demons algorithm. We summarize the connections between each model in a graph. Each connection will be illustrated in corresponding sections.
-
-Last, we discuss on various regularizations approaches applied in these methods and show that how they can be unified under the same framework of Soblev gradient. The regularization schemes reflect how the image similarity term interacts with transform regularization term.
+Last, we discuss various regularization approaches applied in these
+methods and show how they can be unified under the same framework
+using the Sobolev gradient. The regularization schemes reflect how the
+gradient of the image similarity term is mapped to the transformation space.
 
 
 % (Thirdly, we compare how each algorithm compute the inverse transform.)
 
 
-Our report focus in discussing the transformation models. We do not discuss in depth about other important problems in diffeomorphic image registration, like the image similarity terms, the optimization schemes, the symmetric update scheme, other interesting constraints on the transformation models (div-curl). A brief discussion is given for interested readers.
+This report focuses on the transformation models. We do not discuss in
+depth about other important problems in diffeomorphic image
+registration, like the image similarity terms, the optimization
+schemes, the symmetric update scheme or other interesting constraints on the transformation models (div-curl). A brief discussion is given for interested readers.
 
-\section{math notations}
+\section{mathematical notation}
 
 \newcommand{\vect}[1]{\mathbf{#1}}
 \newcommand{\field}[1]{\mathbf{#1}}
@@ -88,33 +107,43 @@ Our report focus in discussing the transformation models. We do not discuss in d
 
 \section{From Small Deformation to Large Deformation in Image Registration}
 
-Image registration is to find a transform from one image to the other. Such a transform defines pixel-wise correspondences between two images. 
-To simplify notations we assume that any image $\I$ discussed here is a scalar function defined on the same spatial domain: $\I$ : $\Omega \subseteq \R^d \to \R$. 
+The goal of image registration is to find a viable transform from one image to the other. Such a transform defines pixel-wise correspondences between two images. 
+To simplify notation, we assume that any image $\I$ discussed here is a scalar function defined on the same spatial domain: $\I$ : $\Omega \subseteq \R^d \to \R$. 
 For example, a 3D image has $d=3$. A transform $\myphi$ is a mapping between two spatial domains: $\Omega \rightarrow \Omega$. 
-If one transform $\myphi$ is applied to an image $I$, a new warped image is generated as the composition of two functions $\I \circ \myphi$, which is a new function as $\Omega \to \R$. 
+If one transform $\myphi$ is applied to an image $I$, a new warped
+image is generated as the composition of two functions $\I \circ
+\myphi$, which is a new function $\Omega \to \R$. 
 
-Given an template image $\I_0$ (i.e. \textit{the fixed image}) and an individual image to be warped $\I_1$ (i.e. \textit{the moving image}), the image registration problem is to find a transform $\myphi$ such that warped moving image $\I_1 \circ \myphi$ is close to the fixed image $\I_0$ and $\myphi$ is smooth. 
-This is formulated as minimization of an energy function $\myE(\myphi)$, which usually comprises of two parts:
+Given an template image $\I_0$ (i.e. \textit{the fixed image}) and an
+individual image to be warped $\I_1$ (i.e. \textit{the moving image}),
+the image registration problem optimizes a transform $\myphi$ such
+that the warped moving image $\I_1 \circ \myphi$ is close to the fixed image $\I_0$ and $\myphi$ is smooth. 
+This is formulated as minimization of an energy function
+$\myE(\myphi)$, which usually comprises two parts:
 \begin{align}
 \label{eq:energy}
 \myE(\myphi) = \lambda_S \myS(\I_0,\I_1,\myphi) + \lambda_R \myR(\myphi),
 \end{align}
 in which $\lambda_S$ and $\lambda_R$ are two scalar weights. The first term in the right is an image similarity function $\myS(\I_0, \I_1, \myphi)$, evaluating the similarity between two images using the transform $\myphi$. 
 How to choose an appropriate similarity function is a fundamental problem in image registration, which, however, is not a topic in this report. 
-Here we adopt the sum of square difference (SSD) of two images as the similarity function throughout this paper, for both its simpleness and wide adoption. One can write as:
+Here we adopt the sum of square difference (SSD) of two images as the
+similarity function throughout this paper, for both its simplicity and
+familiarity. One can write SSD as:
 \begin{align}
 \myS(\I_0, \I_1, \myphi) = \| \I_1 \circ \myphi - \I_0 \|^2.
 \label{eq:SSD}
 \end{align}
 
-The second part is a transform regularization function $\myR(\myphi)$, which is usually solely defined on the transform. This term is a prior about the smoothness of transform. For some specific parameterized transformation model, for example, the affine transformation or the B-spline transformation, the smoothness is implicitly encoded through corresponding parameterization forms. 
-However, for general non-rigid registration when no other information is available., the transform $\myphi$ is defined using a deformation vector field $\u$: $\Omega \to \R$,
+The second part is a transform regularization function $\myR(\myphi)$,
+which is usually solely defined on the transform. This term is a prior
+on the transform smoothness. For some specific parameterized transformation model, for example, the affine transformation or the B-spline transformation, the smoothness is implicitly encoded through corresponding parameterization forms. 
+However, for general non-rigid registration when no other information is available, the transform $\myphi$ is defined using a deformation vector field $\u$: $\Omega \to \R$,
 \begin{align}
 \myphi(x) = x + \u(x), \; x \in \Omega.
 \end{align}
 Such a parameterization is simply adding an identity transform with a vector field. 
 Regularization functions are normally defined on $\u$ instead of directly on $\myphi$.
-Later we may simply notate a transform $\myphi$ using $\u$ for simplicity. 
+Later we may simply denote a transform $\myphi$ using $\u$ for simplicity. 
 $\u(x)$ is a zero vector field when $\myphi(x)=x$. 
 This form is strongly connected to Hooke's law about the equilibrium position of elastic material (\textit{cite Gee's paper}). 
 
@@ -122,7 +151,10 @@ This form is strongly connected to Hooke's law about the equilibrium position of
 
 \subsection{A First Example: Horn-Schunck Optical Flow}
 \label{sec:opticalflow}
-There are many choices of regularization terms. One simple model is to constrain variance of the displacement field $\u$ in the first order. This is denoted as the membrane energy model \cite{Ashburner2007} or the Tikhonov regularization \cite{Horn1981}:
+There are many choices of regularization terms. One simple model is to
+constrain first order variation of the displacement field $\u$. This
+is denoted as the membrane energy model \cite{Ashburner2007} and
+provides one form of Tikhonov regularization \cite{Horn1981}:
 \begin{align}
 \label{eq:membrane}
 \R(\u) = \frac{1}{2} \int_\Omega \sum_{i=1}^d\sum_{j=1}^d (\frac{\p \u_i(x)}{\p x_j})^2 \dd x
@@ -135,8 +167,7 @@ Solving the Euler-Lagrangian equation of this functional gives the negative Lapl
 = -  \L \u_i(x) 
 , \; i=1 \cdots d \;.
 \end{align}
-
-When $\u$ is close to zeros, the SSD function of Eq.\ref{eq:SSD} can be approximated using the first order Taylor expansion:
+When $\u$ is close to zero, the SSD function of Eq.\ref{eq:SSD} can be approximated using the first order Taylor expansion:
 \begin{align}
 \I_1 \circ (x + \u ) - \I_0 \approx (\I_1 - \I_0 ) + \ld u, \d I_1(x) \rd
 \label{eq:approxopticalflow}
@@ -155,7 +186,7 @@ The Euler-Lagrangian equations of $\myE(\u)$ at each pixel $x$ give the linear s
 , \; i=1 \cdots d
 \label{eq:opticalflow}
 \end{align}
-An iterative optimization scheme was given in \cite{Horn1981}, which is essentially the Jacobi method of solving the large sparse linear system. Such a method only works for small $\u$. However we are going to reformulate it and explore some important ideas adopted in those large deformation methods. 
+An iterative optimization scheme was given in \cite{Horn1981}, which is essentially the Jacobi method of solving the large sparse linear system. Such a method only works for small $\u$. However we are going to reformulate it and explore some important ideas adopted in large deformation methods. 
 
 Notice that the first term in the left is the derivative of the image similarity function and the second term is the derivative of the regularization function, we actually have a general form of the functional derivative as:
 \begin{align}
@@ -163,7 +194,7 @@ Notice that the first term in the left is the derivative of the image similarity
 \end{align}
 
 
-Various optimization schemes can be derived from this representation. For example, the steepest gradient descent is an iterative scheme as $\u \leftarrow \u - \d \myE(u)$. By introducing the second order approximation of $myE(u)$ one can apply Gauss-Newton method, Levenberg-Marquardt algorithm, or the Gauss method when the second order derivative of $\myE$ is feasible. In this paper we leave out the discussion of different optimization stategies by focus on the derivation of the gradient.
+Various optimization schemes can be derived from this representation. For example, the steepest gradient descent is an iterative scheme as $\u \leftarrow \u - \d \myE(u)$. By introducing the second order approximation of $myE(u)$ one can apply Gauss-Newton method, Levenberg-Marquardt algorithm, or the Gauss method when the second order derivative of $\myE$ is feasible. In this paper we leave out the discussion of different optimization stategies by focusing on the derivation of the gradient.
 
 The optimal point can also be computed by iteratively solving the linear system $\d_u \myE = 0$. 
 Specifically if we denote $\tQ$ as an operator on $\u$: $\tQ(\u) = \d_\u \myR(\u)$, we have $\d_\u \myS(\u) + \tQ(\u) = 0$. $\u$ is solved as: 
@@ -171,9 +202,16 @@ Specifically if we denote $\tQ$ as an operator on $\u$: $\tQ(\u) = \d_\u \myR(\u
 \u = \tQ^{-1}(-\d_\u \myS(\u))
 \label{eq:projection}
 \end{align}
-As the regularization $\myR$ is solely defined on $\u$, $\tQ^{-1}$ is independent of choice of $\myS$. This formulation now can be viewed as projecting of $-\d_\u \myS(\u)$ to a new vector space. Each iteration consists of two steps. The first can be viewed as the initial estimation of the displacement from the image observation. The second is to regularize the estimation by projecting to a smooth vector space. Such a two step approach is practically adopted in the optimization of many image registration algorithms and we will elaborate on this later.
+As the regularization $\myR$ is solely defined on $\u$, $\tQ^{-1}$ is
+independent of choice of $\myS$. This formulation now can be viewed as
+projecting of $-\d_\u \myS(\u)$ to a new vector space. Each iteration
+consists of two steps. The first gives the initial estimate of the displacement from the image observation. The second regularizes the estimate by projecting to a smooth vector space. Such a two step approach is practically adopted in the optimization of many image registration algorithms and we will elaborate on this later.
 
-For Horn-Schunck optical flow, $\tQ^{-1}$ is indeed the inverse operator of Laplacian and thus filters out high-frequency components of the deformation field $\u$ in the Fourier domain. Later we will also analyze other transformation models through the perspective of projecting similarity function gradient to the vector space.	
+For Horn-Schunck optical flow, $\tQ^{-1}$ is indeed the inverse
+operator of Laplacian and thus filters out high-frequency components
+of the deformation field $\u$ in the Fourier domain. Later we will
+also analyze other transformation models through the perspective of
+projecting the similarity function gradient to the vector space.	
 
 
 
@@ -199,18 +237,23 @@ For Horn-Schunck optical flow, $\tQ^{-1}$ is indeed the inverse operator of Lapl
 \subsection{Demons algorithm}
 \label{sec:demons}
 
-Before introducing image registration of large deformation, we briefly go over another important small deformation registration method: Thirion's demons algorithm \cite{Thirion98}. Demons algorithm is one of the most efficient methods applied in the medical image registration and have many variants (refer to Vercauteren's Insight into efficient image registration Sec.1 pp2). It also serves as a baseline algorithm of two large deformation models which are discussed in this paper. 
+Before introducing image registration of large deformation, we briefly
+go over another important small deformation registration method:
+Thirion's demons algorithm \cite{Thirion98}.  The demons algorithm is
+one of the most efficient methods applied in medical image
+registration and has many variants (refer to Vercauteren's Insight into efficient image registration Sec.1 pp2). It also serves as a baseline algorithm of two large deformation models which are discussed in this paper. 
 
-In Thirion's original paper \cite{Thirion98}, the demons algorithm considered the image registration as a diffusion process. The pixels of images were push by demons with local forces inspired by optical flow equations. However the diffusion scheme was described more or less like a heuristic procedure without a clear theoretical explanation. Cachier et al \cite{Cachier2003} justified the algorithm as an alternate minimization of an energy function. The idea is to introduce an auxiliary variable of $\c$ as the raw correspondences between pixels, which can be viewed as the observation of the underlying transform $\myphi$:
+In Thirion's original paper \cite{Thirion98}, the demons algorithm considered the image registration as a diffusion process. The pixels of images were pushed by demons with local forces inspired by optical flow equations. However the diffusion scheme was described more or less like a heuristic procedure without a clear theoretical explanation. Cachier et al \cite{Cachier2003} justified the algorithm as an alternating minimization of an energy function. The idea is to introduce an auxiliary variable of $\c$ as the raw correspondences between pixels, which can be viewed as the observation of the underlying transform $\myphi$:
 \begin{align}
 \myE(\myphi,\c)= \frac{1}{\sigma_i^2}\| \I_1 \circ \c - \I_0 \|^2
 +\frac{1}{\sigma_x^2} \|\c - \myphi\|^2
 +\frac{1}{\sigma_T^2} \int_\Omega \| \d\u(x)\|^2 \dd x,
 \end{align}
-where $\sigma_i$ accounts for the noise on the image intensity, $\sigma_x$ accounts for a spatial uncertainty on the correspondences and $\sigma_T$ controls the amount of regularization. Now the demons algorithm is explained as an alternate optimization over $c$ and $\myphi$. The first step solves for $\c$ by optimizing $\myS(\c) = \frac{1}{\sigma_i^2}\| \I_1 \circ \c - \I_0 \|^2 +\frac{1}{\sigma_x^2} \|\c - \myphi\|^2 $ given current $\myphi$. 
-This is similar to the optical flow equation with constraint that $c$ should be close to $\myphi$. 
+where $\sigma_i$ accounts for the noise on the image intensity, $\sigma_x$ accounts for a spatial uncertainty on the correspondences and $\sigma_T$ controls the amount of regularization. Now the demons algorithm is explained as an alternating optimization over $c$ and $\myphi$. The first step solves for $\c$ by optimizing $\myS(\c) = \frac{1}{\sigma_i^2}\| \I_1 \circ \c - \I_0 \|^2 +\frac{1}{\sigma_x^2} \|\c - \myphi\|^2 $ given current $\myphi$. 
+This is similar to the optical flow equation with the constraint that $c$ should be close to $\myphi$. 
 The second step solves for $\myphi$ by optimizing $\myR(\myphi) = \frac{1}{\sigma_x^2} \|\c - \myphi\|^2+\frac{1}{\sigma_T^2} \int_\Omega \| \d\u(x)\|^2 \dd x$ with given $\c$. 
-This is actually the projection step we discussed in the last section. $c$ and $\myphi$ are initialized as the identity transform before the iteration.
+This is actually the projection step we discussed in the last
+section. $c$ and $\myphi$ are typically initialized as the identity transform.
 
 Since $\c$ and $\myphi$ have to be close, let $\c = \myphi + \w$ . The minimization of $\myS(\c)$ here used the same first order expansion of $I_1 \circ \c $ as in the optical flow algorithm:
 \begin{align}
@@ -241,9 +284,15 @@ which has a closed form solution.  Using the Euler-Lagrangian equation yields th
 \begin{align}
 \u = \left( \Id - \frac{\sigma_x^2}{\sigma_T^2} \L \right)^{-1} \left( \c - x \right),
 \end{align}
-where $\Id$ is the identity operator. Comparing this with Eq.\ref{eq:projection}, now it is clear that the regularization step is also projecting the auxiliary variable $\c-x$ using a smooth operator 
-$\tQ^{-1} = \left( \Id - {\sigma_x^2}/{\sigma_T^2} \L \right)^{-1}$. 
-Thirion's demons algorithm applies Gaussian smoothing for efficient computation: $\tQ^{-1} \u = \tG \ast \u$, where $\tG$ is a Gaussian kernel and $\ast$ represents image convolution. For now let us simply assume that $\left( \Id - {\sigma_x^2}/{\sigma_T^2} \L \right)^{-1} = \tG$, we will come back to the exact regularization terms corresponding to Gaussian smoothing later.
+where $\Id$ is the identity operator. Comparing this with
+Eq.\ref{eq:projection}, now it is clear that the regularization step
+is also projecting the auxiliary variable $\c-x$ using a smoothing
+operator  $\tQ^{-1} = \left( \Id - {\sigma_x^2}/{\sigma_T^2} \L \right)^{-1}$. 
+Thirion's demons algorithm applies Gaussian smoothing for efficient
+computation: $\tQ^{-1} \u = \tG \ast \u$, where $\tG$ is a Gaussian
+kernel and $\ast$ represents image convolution. For now let us simply
+assume that $\left( \Id - {\sigma_x^2}/{\sigma_T^2} \L \right)^{-1} =
+\tG$.  We will come back to the exact regularization terms corresponding to Gaussian smoothing later.
 
 Now we summarize the demons algorithm as:
 \begin{algorithm}
@@ -262,7 +311,8 @@ Now we summarize the demons algorithm as:
 \subsection{Compositive Demons and Inverse Transform}
 \label{sec:compositivedemons}
 
-The additive update is a natural way as the gradient descent of $\w$ in the vector space $\R^d$. There is another way to combine to $\myphi$ and $\w$, which is the composition relationship:
+The additive update performs a gradient descent on $\w$ in the vector
+space $\R^d$. Another way to combine to $\myphi$ and $\w$ is through composition:
 \begin{align}
 \c = \myphi \circ \left( \Id + \w \right)
 \label{eq:demoncomp}
@@ -282,7 +332,7 @@ and the demons force $\w$ is:
 \end{align}
 
 We list the compositive demons algorithm in Alg. \ref{alg:compdemons}. 
-If we set $\sigma_i$ as a pixel-wise function: $\sigma_i(x) = \I_1 \circ \myphi - \I_0 $, Eq. \ref{eq:compdemonforce} is close to the form of the original demons force in \cite{Thirion98}. There are other variants of demons forces by choosing different forms of $\myS$ and various second-order optimization scheme. 
+If we set $\sigma_i$ as a pixel-wise function: $\sigma_i(x) = \I_1 \circ \myphi - \I_0 $, Eq. \ref{eq:compdemonforce} is close to the form of the original demons force in \cite{Thirion98}. There are other variants of demons forces by choosing different forms of $\myS$ and various second-order optimization schemes. 
 
 \begin{algorithm}
 \caption{Compositive Demons Algorithm}
@@ -300,19 +350,22 @@ If we set $\sigma_i$ as a pixel-wise function: $\sigma_i(x) = \I_1 \circ \myphi 
 The compositive demons requries to compute the transform composition $\myphi \circ \left( \Id + \w \right)$ instead of simply adding $\myphi + \w$. It also computes the gradient of the warped image $\I_1$ as $\d (\I_1 \circ \myphi)$ (Eq. \ref{eq:compdemonforce}). In contrast, the additive update needs to warp the gradient image: $\d_{\myphi}\I_1$ (Eq. \ref{eq:adddemonforce}), which may have higher numerical error since the gradient image is usually a sparse image.
 
 A more important difference between the compositive and the additive update schemes is related to the invertibility of the transforms. 
-When $\w$ is small, it is approximated that $\Id+\w$ is invertible with $(\Id+\w)^{-1}=\Id-\w$. But this is general true for large deformation $\w$. 
-In the additive update scheme $\c \leftarrow \myphi + \w$, $\c$ usually quickly become incovertible after several iterations. 
-The adding operation in the vector space does not preserve the invertibility. 
+When $\w$ is small, it is approximated that $\Id+\w$ is invertible
+with $(\Id+\w)^{-1}=\Id-\w$. But this is generally false for large deformation $\w$. 
+In the additive update scheme $\c \leftarrow \myphi + \w$, $\c$ usually quickly becomes non-invertible after several iterations. The adding operation in the vector space does not preserve invertibility. 
 
 On the other side, the composition of two invertible transforms is still invertible. 
 This implies that the compositive scheme is able to yield an invertible transform when $\w$ is small in each iteration, which was validated in \cite{Vercauteren2009}. 
-This means that a large and invertible transform is able to be generated from the composition of many small deformation fields. 
-In the following sections we are going to formalize this intuition and shows this is the background for many large deformation transformation models.
+This means that a large and invertible transform is able to be generated from the composition of many small deformation fields. In the following sections we are going to formalize this intuition and
+reveal this as the background for many large deformation transformation models.
 
 \subsection{Diffeomorphism Group}
 \label{sec:diffgroup}
 
-The small deformation algorithms we discussed before parametrize the transform as $\myphi(x) = x + \u(x)$. Unless the $u(x)$ is close to zero, such a form is not necessarily invertible and in general cannot preserve topology . In many applications cases, the nonrigid transform bewteen two images are very large. The small deformation algorithms could not explicitly enforce a one-to-one mapping. It is necessary to exploit the large deformation framework which can preserve the topology.
+The small deformation algorithms we discussed before parametrize the
+transform as $\myphi(x) = x + \u(x)$. Unless $u(x)$ is close to
+zero, such a form is not necessarily invertible and in general cannot
+preserve topology. In many applications, the nonrigid transform bewteen two images are very large. The small deformation algorithms could not explicitly enforce a one-to-one mapping. It is necessary to exploit the large deformation framework which can preserve the topology.
 
 Large deformation is conveniently represented as a diffeomorphism in mathematics. A diffeomorphism $\myphi$ is a globally one-to-one continuous and smooth mapping with derivatives and invertible. In other words, $\myphi^{-1}$ exists and both $\myphi$ and $\myphi^{-1}$ are invertible. The diffeomorphism forms a group $\Diff$ under the composition operation, i.e. $\myphi_1 \circ \myphi_2 \in \Diff$ when $\myphi_1, \myphi_2 \in \Diff$:
 \begin{align}
