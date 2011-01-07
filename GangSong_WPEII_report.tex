@@ -179,7 +179,7 @@ Combining it with the Tikhonov regularization leads to the overall energy functi
 + \lambda_R \int_\Omega \sum_{i=1}^d \| \d \u_i(x) \|^2 \dd x
 \end{align}
 
-The Euler-Lagrangian equations of $\myE(\u)$ at each pixel $x$ give the linear system of the optimal point:
+The Euler-Lagrangian equations of $\myE(\u)$ at each pixel $x$ gives the linear system of the optimal point:
 \begin{align}
 \lambda_S (\I_1 - \I_0  + \ld \u, \d I_1(x) \rd) \frac{\p I_1(x)}{\p x_i}
 - \lambda_R \L \u_i(x) = 0
@@ -787,7 +787,9 @@ Using a stationary velocity field $\v$ to replace the time varying velocity fiel
 \end{align}
 This shows that using stationary velocity fields, $\myphi_{s,t}$ only depends on the length between two time points and not on the starting point. 
 
-Although not every diffeomorphism can be parameterized by stationary velocity fields \cite{Ashburner2007}, such a model performs well empirically for medical image registration \cite{Hernandez2009, Vercauteren2009}.
+Although not every diffeomorphism can be parameterized by stationary velocity fields \cite{Ashburner2007}, such a model performs well empirically for medical image registration \cite{Hernandez2009, Vercauteren2009}. Parameterization of stationary velocity fields not only simplifies the compution; it also provides the possibiity of statistics study on one velocity field, which is desirable in many applications.
+
+
 
 \subsection{Computation of Exponential Mapping}
 
@@ -869,57 +871,66 @@ Another difference between DARTEL and LDDMM is that optimizing in $L^2$ space or
 
 \subsection{Vercauteren's Diffeomorphic Demons Algorithm}
 
-Vercauteren extended the compositive demons algorthm in Sec. \ref{sec:compositivedemons} with diffeomorphism updates \cite{Vercauteren2009}. In each iterative step, the diffeomorphic transformation can be represented as:
+Vercauteren extended the compositive demons algorthm in Sec. \ref{sec:compositivedemons} with diffeomorphism updates \cite{Vercauteren2009}. Following notations used in Sec. \ref{sec:demons}, in each iterative step, the diffeomorphic transformation can be represented as:
 \begin{align}
-\myphi \leftarrow \myphi \circ \exp(\v)
+\myphi \leftarrow \myphi \circ \exp(\w)
 \end{align}
-If $\myphi$ was initialized as a diffeormorphism (i.e. $\Id$), the composition of the fields $v$ from all the iterations are $\myphi = \exp{\v_N} \circ \cdots \circ \exp{\v_1}$. As we know that $\exp(\v) = \Id + \v + o(\|\v\|)$, the compositive demons is a first order approximation of such a parameterization.
+If $\myphi$ was initialized as a diffeormorphism (i.e. $\Id$), the composition of the fields $\w$ from all the iterations are $\myphi = \exp(\w_N) \circ \cdots \circ \exp(\w_1)$. As we know that $\exp(\w) = \Id + \w + o(\|\w\|)$, the compositive demons is a first order approximation of such a parameterization. 
+Note that the new regularization terms can be reinterpreted as $\| \w \|^2 = \| \log(s^{-1} \circ c )\|^2$.
 
-Unlike LDDMM and DARTEL,Vercauteren et al did not compute the exact analytical form of $\p_\v \exp(\v)$ for any $\v$. In contrast they explored from the perspective of Lie group. We already discussed that the velocity field $v$ belongs to the Lie algebra, i.e. the tangent space, of the Lie group. The exponential mapping $\exp(\v)$ maps from a neighborhood of $0$ in the vector tangent space to a neighborhood of $\Id$ in the diffeomorphism transform group. 
+Unlike LDDMM and DARTEL,Vercauteren et al did not compute the exact analytical form of $\p_\w \exp(\w)$ for any $\w$. In contrast they explored from the perspective of Lie group. We already discussed that the velocity field $v$ belongs to the Lie algebra, i.e. the tangent space, of the Lie group. The exponential mapping $\exp(\w)$ maps from a neighborhood of $0$ in the vector tangent space to a neighborhood of $\Id$ in the diffeomorphism transform group. 
 
-When $\v$ is close to $0$, one only checks the derivative $\p_{\v}\exp(\v)$ at $0$, similar to the small deformation methods. Arsigny et al showed in \cite{Arsigny2006} that:
+When $\w$ is close to $0$, one only checks the derivative $\p_{\w}\exp(\w)$ at $0$, similar to the small deformation methods. Arsigny et al showed in \cite{Arsigny2006} that:
 \begin{align}
-\frac{\dd}{\dd\v} \exp(\v) \rvert_{\v=0} = \Id \; .
+\frac{\dd}{\dd\w} \exp(\w) \rvert_{\w=0} = \Id \; .
 \end{align}
-Again this implies that the around 0 $\exp(\v)$ and $\Id+\v$ has the same first derivative. So the diffeomorphic demons is very close to the compositive demons and the difference is the compositive step is now $\myphi \leftarrow \myphi \circ \exp(\v)$.
+Again this implies that the around 0 $\exp(\w)$ and $\Id+\w$ has the same first derivative. So the diffeomorphic demons is very similar to the compositive demons and the difference is the compositive step is now $\myphi \leftarrow \myphi \circ \exp(\w)$. 
 
 \subsection{Comparison with DARTEL and Compositive Demons}
 
-The update step used in diffeomorphic demons actually is an approximation of DARTEL algorithm. Instead of averaging the optical flow at every time points, diffeomorphic demons only used the optical flow (in other words, the demons forces) at time $0$ as a replace. Note that this is validated only when $\v$ is small and not true in general. 
+The update step used in diffeomorphic demons actually is an approximation of DARTEL algorithm. Instead of averaging the optical flow at every time points, diffeomorphic demons only used the optical flow (in other words, the demons forces) at time $0$ as a replace. Note that this is validated only when $\w$ is small and not true in general. Unlike DARTEL, the final transform $\myphi$ cannot be represented as the exponential mapping anymore.
 
-Similar to compositive demons, diffeomorphic demons did not track all the velocity fields generated in each iteration. It is more effcient and more greedy than LDDMM. Same with compositive demons, 
-However, the transform is updated by composing with the exponential of update, instead of the current update directly. 
+Similarly to compositive demons, diffeomorphic demons did not track all the velocity fields generated in each iteration. It is more effcient and more greedy than LDDMM. The difference is that the transform is updated by composing with the exponential of update, instead of the current update directly. 
 
-Diffeomorphic demons thus can be viewed as a middle method between DARTEL and compositive demons. In practice, these three method have comparable performance \cite{Hernandez2008,Vercauteren2009}.in image matching results but may result in different transforms.
+Diffeomorphic demons thus can be viewed as a middle method between DARTEL and compositive demons. In practice, these three method have comparable performance \cite{Hernandez2008b,Vercauteren2009} in image matching results but may result in different transforms.
 
 
 \subsection{Vercauteren's LogDemons Algorithm}
 
+In order to keep the final transform with the exponential form $\exp(\v)$, Vercauteren et al proposed LogDemons \cite{Vercauteren2008Symmetric} to update the velocity field directly in the log domain. The aim is to combine update $w$ to current velocity $v$ to a new exponential transform such that:
+\begin{align}
+\exp(Z(\v, \epsilon \w)) = \exp(\v) \circ \exp(\epsilon \w) \;,
+\end{align}
+where $\epsilon$ is a small scalar to emphasize that $\epsilon \w$ is small. 
 
+Although the exponential of velocity fields not forming a strict Lie group, Bossa et al has shown the Baker-Campbell-Hausdorff formula for Lie group could be applied successfully. In the settings of LogDemons, Vercauteren used the following first order approximation:
+\begin{align}
+Z(\v, \epsilon \w) = \v + \epsilon \w + \frac{1}{2}[\v, \epsilon\w]+\frac{1}{12}[\v,[\v,\epsilon\w]] + O(\|\epsilon\w\|^2) \;, 
+\end{align}
+with the Lie bracket $[\cdot,\cdot]$ defined as: 
+$
+[\v,\w]=|\D(\v)|\w-|\D(\u)|\w
+$
+and $|\D\cdot|$ represents the Jacobian determinant.
 
+LogDemons also defines the regularization of $\myphi$ as $\| \D \log(myphi) \|^2=\|\v\|^2$. Thus LogDemons has the update step and regularization step as:
+\begin{align}
+ & \c = \exp(\v) \;\text{ and } \v \leftarrow Z(\v, \w) \\
+ & \v \leftarrow \tG \ast \v
+\end{align}
 
+\subsection{compare to DARTEL}
 
+LogDemons completely works in the log domain of the exponential mappings. It has the same parameterization as DARTEL, which makes them share some similar advantages, like efficient computation of exponential mapping and providing the velocity fields for further statistical analysis.
 
-
-
-
-\subsection{Completely update in log domain using BCH approximation}
-\textit{good for computing statistics}
-
-
-
-
-\section{DiffDemons}
-\subsection{compare to compositive demons}
-\textit{Brian's method also belong to this category. These greedy methods shows both good in performance and efficiency in speed.}
-
-\subsection{compare to logDemons}
-\subsection{compare to LDDMM}
-\textit{discussion: how to combine two transformation: last velocity }
+Unlike DARTEL, LogDemons is extended from diffeomorphic demons approach. It needs to satisfy the assumption that each update of velocity field has to be small. DARTEL has a more rigorous way to compute the gradient, which can be explained as the averaging of optical flows at all time points. LogDemons only used the optical flow at time $0$, as in the diffeomorphic demons. Instead, LogDemons utilizes BCH formula to integrate the update back into the velocity field in the log domain. 
 
  
 
 \section{Conclusion}
+
+In this paper we 
+
 
 \subsection{Discussion}
 
