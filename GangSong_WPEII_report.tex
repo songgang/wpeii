@@ -5,6 +5,7 @@
 \usepackage{amsmath,rotating,array,multirow,colortbl,setspace,color}
 \usepackage{lineno}
 \usepackage{algorithm}
+\usepackage{multirow}
 
 
 \title{Parametrization of Deformation Fields in Diffeomorphic Image Registration}
@@ -22,6 +23,11 @@
 
 \section{Introduction}
 \label{sec:intro}
+
+
+
+
+
 A diffeomorphism is a differentiable map with a differentiable
 inverse.  These maps form a Lie group on which a (right invariant)
 metric may be induced.  Both the metric structure and intrinsic
@@ -32,8 +38,10 @@ diffeomorphisms in the description and detection of disease and
 development.  
 
 
-
 Purpose of image registration
+
+
+Image registration is an important technique for the application of medical image anaylysis. 
 
 small and large deformation 
 
@@ -223,21 +231,21 @@ projecting the similarity function gradient to the vector space.
 
 
 
-\begin{align}
-& \image{I_1} - \image{I_0 \circ \varphi} \\
-& \varphi(x) = x + \vect{u}(x) \\
-& \varphi(x) = x + \exp(\vect{v}(x)) \\
-& \I_0 - \I_1 \circ \myphi \\
-& \myphi(x) = x + \u(x) \\
-& \myphi(x) = x + \exp(\v(x)) \\
-% & \D  \myphi = \frac{\partial \myphi}{\partial x} \\
-% & \D \myphi \circ \myphi(x,t) \\
-% & \D \myphi | _{ \myphi(x,t) } \\
-% & \D (g \circ h)  = \D g |_{h(x)} \D h \\ 
-% & \D (g \circ h)  = \D g  \circ {h(x)} \D h \\ 
-& \D_{x} (g \circ h)  = \D_{h(x)} g  \, \D h \\ 
-& |\D \myphi |   \\
-\end{align}
+% \begin{align}
+% & \image{I_1} - \image{I_0 \circ \varphi} \\
+% & \varphi(x) = x + \vect{u}(x) \\
+% & \varphi(x) = x + \exp(\vect{v}(x)) \\
+% & \I_0 - \I_1 \circ \myphi \\
+% & \myphi(x) = x + \u(x) \\
+% & \myphi(x) = x + \exp(\v(x)) \\
+% % & \D  \myphi = \frac{\partial \myphi}{\partial x} \\
+% % & \D \myphi \circ \myphi(x,t) \\
+% % & \D \myphi | _{ \myphi(x,t) } \\
+% % & \D (g \circ h)  = \D g |_{h(x)} \D h \\ 
+% % & \D (g \circ h)  = \D g  \circ {h(x)} \D h \\ 
+% & \D_{x} (g \circ h)  = \D_{h(x)} g  \, \D h \\ 
+% & |\D \myphi |   \\
+% \end{align}
 
 
 \subsection{Demons algorithm}
@@ -922,7 +930,7 @@ Previously we discussed that it is expensive to compute this gradient in LDDMM. 
 Ashburner used the Levenberg-Marquardt algorithm in $L^2$ space as the optimization scheme, for which the second order derivatives of the energy also was computed. From the discussion in Sec. \ref{sec:sobolevprecondition}, one could also use the gradient descent in the Sobolev space acting as the preconditioner, which was used in Beg et al's LDDMM algorithm \cite{Beg2005Computing}. 
 
 % \subsection{DARTEL regularization and Gauss-Newton Method to Soblev gradient}
-\subsection{Comparison with LDDMM}
+\subsubsection{Comparison with LDDMM}
 
 DARTEL and LDDMM both models the transform from the o.d.e generator. Both algorithms compute the intergration over time using $N$ discretized time points. Both have a rigorous derivation of the energy gradient. 
 However, the DARTEL algorithm used the stationary velocity field $v$
@@ -958,7 +966,7 @@ When $\w$ is close to $0$, one only checks the derivative $\p_{\w}\exp(\w)$ at $
 \end{align}
 Again this implies that the around 0 $\exp(\w)$ and $\Id+\w$ has the same first derivative. So the diffeomorphic demons is very similar to the compositive demons and the difference is the compositive step is now $\myphi \leftarrow \myphi \circ \exp(\w)$. 
 
-\subsection{Comparison with DARTEL and Compositive Demons}
+\subsubsection{Comparison with DARTEL and Compositive Demons}
 
 The update step used in diffeomorphic demons actually is an approximation of DARTEL algorithm. Instead of averaging the optical flow at every time points, diffeomorphic demons only used the optical flow (in other words, the demons forces) at time $0$ as a replace. Note that this is validated only when $\w$ is small and not true in general. Unlike DARTEL, the final transform $\myphi$ cannot be represented as the exponential mapping anymore.
 
@@ -991,7 +999,7 @@ LogDemons also defines the regularization of $\myphi$ as $\| \D \log(myphi) \|^2
  & \v \leftarrow \tG \ast \v
 \end{align}
 
-\subsection{compare to DARTEL}
+\subsubsection{Comparison with DARTEL}
 
 LogDemons completely works in the log domain of the exponential mappings. It has the same parameterization as DARTEL, which makes them share some similar advantages, like efficient computation of exponential mapping and providing the velocity fields for further statistical analysis.
 
@@ -1001,33 +1009,74 @@ Unlike DARTEL, LogDemons is extended from diffeomorphic demons approach. It need
 
 \section{Conclusion}
 
-Diffeomorphism transform is a nice mathematical model for large deformation image registration problems.
+Diffeomorphism transform is a nice mathematical model for large deformation image registration problems.  We mainly discussed four types of parameterization models used in the diffeomorphism registration: Beg's LDDMM \cite{Beg2005Computing}, Ashburner's DARTEL \cite{Ashburner2007}, Vercauteren's diffeomorphic demons \cite{Vercauteren2009} and LogDemons \cite{Vercauteren2008Symmetric}. 
 
-We started by discussing three 
+In this paper, a unifed framework was first established from the discussion of two classic small deformation methods: Horn-Schunck optical flow \cite{Horn1981} and Thirion's demons \cite{Thirion98}. We explained in detail the important derivations in the small deformation models and discussed their intuition. These small deformation methods serve as the base algorithm for their large deformation counterparts.
 
-We demonstrated that the gradient of the image similarity term and the gradient of the transform regularization term are interacted and unified using the Sobolev gradient. Specifically we explained in detail how Gaussian smoothing is related to the Sobolev gradient of the general Tikhonov regularization. Various optimization approaches can be explained as or be approximated by the optimization in the Sobolev Space.  And we explained its connection to the preconditioners used in Newton's optimization methods.
-
-After discussion about the common optimization stratege invovled with transformation regularization, we discussed several different approaches of 
+For all the small and large deformation methods we discussed in this paper, they share the same optimization procedure. First, the derivatives of image similarity term w.r.t the transform parameters are computed. Second, the parameters was updated using a smoothing operation according to different types of regularization. Third, the transform was recomputed using the updated parameters. 
 
 
+The smoothing operation on the transform parameters were derived from the regularization terms. We discussed several forms and regularization terms and their derivaties using Euler-Langrange equation. 
+This step was generalized as the optimization in the Sobolev space. The gradient of the image similarity term and the gradient of the transform regularization term were connected through Sobolev gradient.  Specifically we justified the Gaussian smoothing adopted in the demons approach as solving the general Tikhonov regularization. These regularizations can all be unified as the quadratic terms of first and higher order of derivatives. 
+
+And we also explained its connection to the preconditioners used in Newton's optimization methods.
+
+After proposing a generalized common framework for all models, we introduced the diffeomorphism as a group. By introducing a time variable, one diffeomorphism was generated from velocity fields. One diffeomorphism is generated through the o.d.e. The optimization target is not a transform at one time point, but rather the whole transform path from one image to the other. 
+
+Starting with LDDMM, we first discussed the first form of parameterization as time-varying velocity fields. We showed that it could be viewed as solving optical flow at every time points. Also the compositive demons algorithm could be viewed as a greedy version of optimizing the time-varying velocity fields.
+
+LDDMM was derived rigorously from the general o.d.e form and explicitely introduced the Sobolev gradient in its optimization. Beg also showed that its connection with metric on the diffeomorphism forms. Thus from many aspects LDDMM can be served an exemplar for large deformation methods 
+
+The computation complexity of LDDMM is, however, rather high. It needs to solve $N$ times inverse transforms and also compute $N$ gradient fields for $N$ discretized time points. Ashburner proposed DARTEL to use a stationary velocity field to replace the time-varying ones. The DARTEL algorithm updated the one velocity field using the average of optical flow at all times points  It could be viewed as a simplified version of LDDMM.  
+
+The stationary velocity fields forms a one parameter subgroup of transformation. The transform is the exponential mapping of the velocity field. Ashburner used the efficent scaling-and-squaring method proposed by Arsigny to compute such an exponential mapping. He also discovered a recursive structure to compute the gradient as well. This reduces the complexity from $N$ to $\log(N)$. But Ashburner also proposed to solve the optimization with Newton's method in $L^2$ space, which was still expensive for computing the inverse of a large sparse matrix.
+
+Vercauteren's diffeomorphic demons and LogDemons further reduce the computation overhead by using only the demons force (or the optical flow equivalently) at time point 0 as the gradient update. While this was only valid when the velocity is small, he demonstrated its effectivenss in practice. Diffeomorphic demons simply replaced the small deformation update in the compositive demons by its exponential mapping in each iteration. However, the overal transform did not have the form of the exponential mapping. This was improved in LogDemons algorithm using the BCH formula from the Lie group theory to recompute a new velocity field in every composition. Such a property makes LogDemons an approximate algorithm to DARTEL.One problem for these two methods is that they exploited certain properties of Lie group, which is still not fully understood mathematically.
+
+In general we concluded that LDDMM used the most general parameterization but its optimization was the most expensive. Diffeomorphic demons adopted a very heuristic parameterization but its optimization was very simple, just like the demons algorithm. DARTEL and LogDemons were two method in the between. DARTEL was a direct reinterpretation of LDDMM with a stationary velocity field. LogDemons was the modified diffeomorphic demons with a stationary velocity field. A summary of comparison of parameterization and regularization for all the methods is listed in Table \ref{tab:comp}.
+
+\begin{table}
+\begin{tabular}{|l|l|l|}
+\hline
+ Small Deformation & Parameterization & Regularization \\
+ \hline
+ Horn-Schunck optical flow \cite{Horn1981} & $\myphi = \Id+\u$ & $ \opL=\d\myphi$ \\
+ \hline
+ Additive demons \cite{Thirion98,Vercauteren2009} & $\myphi \leftarrow \myphi+\w $ & Gaussian smoothing\\
+\hline
+ Compositive demons \cite{Thirion98,Vercauteren2009} & $\myphi \leftarrow \myphi \circ (\Id+\w) $ & Gaussian smoothing\\
+\hline
+\hline
+ Diffeomorphism & Parameterization & Regularization \\
+ \hline
+ LDDMM \cite{Beg2005Computing} & $\frac{\dd}{\dd t} \myphi = \v(\myphi,t)$ & $ \opL=\Id-\alpha\L$ \\
+ \hline
+ DARTEL \cite{Ashburner2007} & $\frac{\dd}{\dd t} \myphi = \v(\myphi) \Leftrightarrow \myphi = \exp(\v)$ & $\opL=\d\myphi$ and others \\
+\hline
+ Diffeomorphic demons \cite{Vercauteren2009} & $\myphi \leftarrow \myphi \circ \exp(\w) $ & Gaussian smoothing\\
+ \hline
+ LogDemons \cite{Vercauteren2008Symmetric} & $\myphi = \exp(\v) $ & Gaussian smoothing\\
+\hline
+\end{tabular}
+\caption{\label{tab:comp}
+Comparison of the parameterization and the regularization terms. For the operator $\opL$, the regularization term is $\|\opL \cdot \|^2$.
+}
+\end{table}
 
 
-
-There are other important problems in diffeomorphic image registration and we could not cover them in this paper. A few of them include the image  similarity terms, the second-order optimization schemes, the symmetric update scheme, and other interesting constraints based on the velocity parameterization. These aspects also interacts with the parameterization of transformation models. 
-
+There are other important problems in diffeomorphic image registration and we could not cover them in this paper. A few of them include the image  similarity terms, the B-spline transform model, the second-order optimization schemes, the symmetric scheme and inverse consistency problem, the numerical methods with Eulerian and Lagrangian coordinates, and other interesting constraints based on the velocity parameterization. 
 
 
-
-\subsection{Discussion}
-
-\subsection{inverse deformation field}
-\subsection{Symmetric registration and Inverse deformation field}
-\subsection{Greedy method}
-\subsection{Constraints beyond regularization: div-curl}
-
-
-
-
+% \subsection{Discussion}
+% 
+% \subsection{inverse deformation field}
+% \subsection{Symmetric registration and Inverse deformation field}
+% \subsection{Greedy method}
+% \subsection{Constraints beyond regularization: div-curl}
+% 
+% 
+% 
+% 
 
 
 
