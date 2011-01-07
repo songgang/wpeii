@@ -30,6 +30,19 @@ that seek to (statistically) quantify shape and its natural variation.
 One such field is medical imaging where numerous researchers employ
 diffeomorphisms in the description and detection of disease and
 development.  
+
+
+
+Purpose of image registration
+
+small and large deformation 
+
+The registration energy: image term and regularization term, how they interact
+
+How to optimize
+
+
+
 % In this paper we discuss these papers:
 
 % Beg's LDDMM demonstrates the successfulness of diffeomorphic image registration \cite{Beg2005Computing}.
@@ -49,8 +62,7 @@ diffeomorphic image mapping. We describe the different variants by
 contrasting the parameterization of the diffeomorphic transformation
 model. We especially fill in the mathematical details, assuming a
 common engineering background, to aid in a complete understanding of
-the derivation of the most important equations. For completeness, we
-add important math background and derivation of most equations in the appendix. 
+the derivation of the most important equations. 
 
 Second, we compare the relationship between these algorithms and
 discuss how they can be converted to each other by simplifying
@@ -65,12 +77,6 @@ gradient of the image similarity term is mapped to the transformation space.
 
 
 % (Thirdly, we compare how each algorithm compute the inverse transform.)
-
-
-This report focuses on the transformation models. We do not discuss in
-depth about other important problems in diffeomorphic image
-registration, like the image similarity terms, the optimization
-schemes, the symmetric update scheme or other interesting constraints on the transformation models (div-curl). A brief discussion is given for interested readers.
 
 \section{mathematical notation}
 
@@ -880,7 +886,7 @@ Note that the new regularization terms can be reinterpreted as $\| \w \|^2 = \| 
 
 Unlike LDDMM and DARTEL,Vercauteren et al did not compute the exact analytical form of $\p_\w \exp(\w)$ for any $\w$. In contrast they explored from the perspective of Lie group. We already discussed that the velocity field $v$ belongs to the Lie algebra, i.e. the tangent space, of the Lie group. The exponential mapping $\exp(\w)$ maps from a neighborhood of $0$ in the vector tangent space to a neighborhood of $\Id$ in the diffeomorphism transform group. 
 
-When $\w$ is close to $0$, one only checks the derivative $\p_{\w}\exp(\w)$ at $0$, similar to the small deformation methods. Arsigny et al showed in \cite{Arsigny2006} that:
+When $\w$ is close to $0$, one only checks the derivative $\p_{\w}\exp(\w)$ at $0$, similar to the small deformation methods. Without a very rigorous derivation, Arsigny et al indicated in \cite{Arsigny2006} 
 \begin{align}
 \frac{\dd}{\dd\w} \exp(\w) \rvert_{\w=0} = \Id \; .
 \end{align}
@@ -903,7 +909,7 @@ In order to keep the final transform with the exponential form $\exp(\v)$, Verca
 \end{align}
 where $\epsilon$ is a small scalar to emphasize that $\epsilon \w$ is small. 
 
-Although the exponential of velocity fields not forming a strict Lie group, Bossa et al has shown the Baker-Campbell-Hausdorff formula for Lie group could be applied successfully. In the settings of LogDemons, Vercauteren used the following first order approximation:
+Although mathematically it is still not clear about the Lie group structure of the infinite-dimensional space, Bossa et al has shown the Baker-Campbell-Hausdorff formula for Lie group could be applied successfully. In the settings of LogDemons, Vercauteren used the following first order approximation:
 \begin{align}
 Z(\v, \epsilon \w) = \v + \epsilon \w + \frac{1}{2}[\v, \epsilon\w]+\frac{1}{12}[\v,[\v,\epsilon\w]] + O(\|\epsilon\w\|^2) \;, 
 \end{align}
@@ -929,7 +935,21 @@ Unlike DARTEL, LogDemons is extended from diffeomorphic demons approach. It need
 
 \section{Conclusion}
 
-In this paper we 
+Diffeomorphism transform is a nice mathematical model for large deformation image registration problems.
+
+We started by discussing three 
+
+We demonstrated that the gradient of the image similarity term and the gradient of the transform regularization term are interacted and unified using the Sobolev gradient. Specifically we explained in detail how Gaussian smoothing is related to the Sobolev gradient of the general Tikhonov regularization. Various optimization approaches can be explained as or be approximated by the optimization in the Sobolev Space.  And we explained its connection to the preconditioners used in Newton's optimization methods.
+
+After discussion about the common optimization stratege invovled with transformation regularization, we discussed several different approaches of 
+
+
+
+
+
+There are other important problems in diffeomorphic image registration and we could not cover them in this paper. A few of them include the image  similarity terms, the second-order optimization schemes, the symmetric update scheme, and other interesting constraints based on the velocity parameterization. These aspects also interacts with the parameterization of transformation models. 
+
+
 
 
 \subsection{Discussion}
