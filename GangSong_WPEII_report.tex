@@ -17,6 +17,15 @@
 
 \maketitle
 \begin{abstract}
+
+
+Diffeomorphism transform is a nice mathematical model for large deformation image registration problems. We mainly discussed four types of parameterization models used in the diffeomorphism registration: Beg's LDDMM , Ashburner's DARTEL, Vercauteren's diffeomorphic demons and LogDemons. A unifed framework was first established from the examples of small deformation methods, which as we show serve as the base algorithms for their large deformation counterparts. By deriving the smoothing operation on the transform parameters from the regularization terms, we generalized the common framework as the optimization in the Sobolev space. Next, we discuss the differences between parameterization used in the four methods and their optimization strategies.  We compare the relationship between these algorithms and
+discuss how they can be converted to each other by simplifying
+assumptions or changing optimization scheme etc. We show that these
+large deformation algorithms may be viewed as
+extensions of the classical small deformation image registration methods. 
+
+
 \end{abstract}
 
 
@@ -25,66 +34,43 @@
 \label{sec:intro}
 
 
+Image registration is an important medical image anaylysis technique. It generates a mapping or a transform between two images. Such a mapping is essential for many medical applications. One can construct an anatomy template by registering a group of images. Various statistics can be defined after images are registered to the same template. Also the mapping is userful to build the motion model from pulmonary and cardiac images. It also helps to discover the longitudinal change and quantify the effect of surgery.
+
+Image registration is always formulated as an optimization problem. An image similarity funcition defines how two images are called ``similar'' after registration. However, this is an ill-posed problem. There are inifinite ways to warp one image into the other. We normally assume the optimal transform should be smooth, which is controlled by the regularization term in the energy funciton. 
+
+Different parameterization of transforms leads to different regularizations. Historically, transform with small deformation was first studied as an optical flow problem \cite{Horn1981}. And later Thirion proposed a his demons algorithm \cite{Thirion98}, which was a heurisic approach without solid theorectical root by the time. Given its pratical success, there were theoretical efforts \cite{Cachier2003} to justify the demons algorithm later. Small deformation parameterize the transform by the displacement field of the transform, which is analogous to the elasticity of the spring. The performance of these models usually degrades rapidly for images with large deformations. One important reason is that small deformation models do not preserve the topology of the image structure. In other words, there is no quanrantee about the one-to-one mapping property for the existense of the inverse transform.
+
+Large deformation methods aim to solve the problem. The notion of diffeomorphism was adopted in image registration. A diffeomorphism is a differentiable map with a differentiable
+inverse, which form a group structure. It has a solid mathmatical background. Unlike small deformation, large deformation methods solves the whole path of transforming one image to the other. The transform model was no longer defined on the end point of the transform, but on the entire spatial-temporal domain. This is analogous to track the motion of the fluid. 
+
+Trouv\'{e} gave some theorectical analysis about the diffeomorphism group \cite{Trouve1998}. Beg et al dervied a rigorous model \cite{Beg2005Computing} using the velocity fields as parameterization. To simplify the computation, Ashburner \cite{Ashburner2007} proposed to use a stationary velocity field to approxiamte the time-vayring velocity field. Especially he introduced a fast numerical method to compute the derivative in the optimization step. Building on Arsigny' Log-Euclidean framework \cite{Arsigny2006}, Vercauteren adopted a similar idea and extended the classical demons into the diffeomorphism transform \cite{Vercauteren2008Symmetric, Vercauteren2009}, which are efficient in computation. Diffeomorphism has been proven to be an effective way to compute large deformation image registration. Later, this approach is formulated more rigoriously \cite{Vercauteren2008Symmetric}, which works completely in the log-domain. Recent improvement by Mansi \cite{Mansi2010} extended the deformation with incompressibility constraints, i.e. the divergence free. Also, interesting work \cite{Chen2010} from Chen independently proposed another more flexible way to control divergence as well as the curl of the deformation field.
 
 
+One way to understanding these approaches is to study the different forms of parameterization used for the diffeomorphism model. In this paper, we focus on four popular models: LDDMM from Beg et al  \cite{Beg2005Computing},
+DARTEL from Ashburner \cite{Ashburner2007}, diffeomorphic demons \cite{Vercauteren2009} and LogDemons \cite{Vercauteren2008Symmetric} from Vercauteren et al. 
 
-A diffeomorphism is a differentiable map with a differentiable
-inverse.  These maps form a Lie group on which a (right invariant)
-metric may be induced.  Both the metric structure and intrinsic
-regularity of the diffeomorphism group are of great value in fields
-that seek to (statistically) quantify shape and its natural variation.
-One such field is medical imaging where numerous researchers employ
-diffeomorphisms in the description and detection of disease and
-development.  
-
-
-Purpose of image registration
-
-
-Image registration is an important technique for the application of medical image anaylysis. 
-
-small and large deformation 
-
-The registration energy: image term and regularization term, how they interact
-
-How to optimize
-
-
-
-% In this paper we discuss these papers:
-
-% Beg's LDDMM demonstrates the successfulness of diffeomorphic image registration \cite{Beg2005Computing}.
-
-% Vercauteren's Differomorphic Demons \cite{Vercauteren2007,Vercauteren2009} build upon Arsigny' Log-Euclidean framework \cite{Arsigny2006} (\textit{NEED TO CONFIRM}).  Later, this approach is formulated more rigoriously \cite{Vercauteren2008Symmetric}, which works completely in the log-domain.
-
-% A similar work  was introduced by Ashburner \cite{Ashburner2007}, especially he introduced a fast numerical method to compute the exponential mapping.
-
-% A recent improvement by Mansi \cite{Mansi2010} extends the deformation with incompressibility constraints, i.e. the divergence free. Also, interesting work \cite{Chen2010} from Chen independently proposed another more flexible way to control divergence as well as the curl of the deformation field.
-
-
-
-\subsection{structure of the paper}
-
-First, this report will illustrate several popular algorithms for
-diffeomorphic image mapping. We describe the different variants by
-contrasting the parameterization of the diffeomorphic transformation
-model. We especially fill in the mathematical details, assuming a
-common engineering background, to aid in a complete understanding of
-the derivation of the most important equations. 
-
-Second, we compare the relationship between these algorithms and
-discuss how they can be converted to each other by simplifying
-assumptions or changing optimization scheme etc. We show that several
-large deformation algorithms may be viewed as
-extensions of a simple common image registration method, the demons algorithm. We summarize the connections between each model in a graph. Each connection will be illustrated in corresponding sections.
-
-Last, we discuss various regularization approaches applied in these
+This report will illustrate several popular algorithms for
+diffeomorphic image mapping. Our discussion follows as two steps. We first try to unify the general image registration in the same framework, using the small deformation as examples. We discuss various regularization approaches applied in these
 methods and show how they can be unified under the same framework
 using the Sobolev gradient. The regularization schemes reflect how the
 gradient of the image similarity term is mapped to the transformation space.
 
+After exploiting the shared framework, we focus on discovering the different variants by
+contrasting the parameterization of the diffeomorphic transformation
+models. We compare the relationship between these algorithms and
+discuss how they can be converted to each other by simplifying
+assumptions or changing optimization scheme etc. We show that these 
+large deformation algorithms may be viewed as
+extensions of the common small deformation image registration methods. 
 
-% (Thirdly, we compare how each algorithm compute the inverse transform.)
+We especially fill in the mathematical details, assuming a
+common engineering background for readers, to aid in a complete understanding of
+the derivation of the most important equations. Many techniques commonly used in diffeomorphism have root in the derivation of the small deformation models and the regularization terms. 
+
+
+There are other important problems in diffeomorphic image registration and we could not cover them in this paper. A few of them include the image  similarity terms, the B-spline transform model, the second-order optimization schemes, the symmetric scheme and inverse consistency problem, the numerical methods with Eulerian and Lagrangian coordinates, and other interesting constraints based on the velocity parameterization. 
+
+
 
 % \section{mathematical notation}
 
@@ -1018,7 +1004,6 @@ For all the small and large deformation methods we discussed in this paper, they
 
 The smoothing operation on the transform parameters were derived from the regularization terms. We discussed several forms and regularization terms and their derivaties using Euler-Langrange equation. 
 This step was generalized as the optimization in the Sobolev space. The gradient of the image similarity term and the gradient of the transform regularization term were connected through Sobolev gradient.  Specifically we justified the Gaussian smoothing adopted in the demons approach as solving the general Tikhonov regularization. These regularizations can all be unified as the quadratic terms of first and higher order of derivatives. 
-
 And we also explained its connection to the preconditioners used in Newton's optimization methods.
 
 After proposing a generalized common framework for all models, we introduced the diffeomorphism as a group. By introducing a time variable, one diffeomorphism was generated from velocity fields. One diffeomorphism is generated through the o.d.e. The optimization target is not a transform at one time point, but rather the whole transform path from one image to the other. 
@@ -1062,27 +1047,6 @@ In general we concluded that LDDMM used the most general parameterization but it
 Comparison of the parameterization and the regularization terms. For the operator $\opL$, the regularization term is $\|\opL \cdot \|^2$.
 }
 \end{table}
-
-
-There are other important problems in diffeomorphic image registration and we could not cover them in this paper. A few of them include the image  similarity terms, the B-spline transform model, the second-order optimization schemes, the symmetric scheme and inverse consistency problem, the numerical methods with Eulerian and Lagrangian coordinates, and other interesting constraints based on the velocity parameterization. 
-
-
-% \subsection{Discussion}
-% 
-% \subsection{inverse deformation field}
-% \subsection{Symmetric registration and Inverse deformation field}
-% \subsection{Greedy method}
-% \subsection{Constraints beyond regularization: div-curl}
-% 
-% 
-% 
-% 
-
-
-
-
-
-
 
 
 \bibliographystyle{unsrt}
