@@ -371,9 +371,18 @@ reveal this as the background for many large deformation transformation models.
 The small deformation algorithms we discussed before parametrize the
 transform as $\myphi(x) = x + \u(x)$. Unless $u(x)$ is close to
 zero, such a form is not necessarily invertible and in general cannot
-preserve topology. In many applications, the nonrigid transform bewteen two images are very large. The small deformation algorithms could not explicitly enforce a one-to-one mapping. It is necessary to exploit the large deformation framework which can preserve the topology.
+preserve topology. In many applications, the nonrigid transform
+between two images are very large, where 'large' is defined in a
+historical context, that is, relative to transformations typically
+captured by elastic or demons type algorithms. Traditionally, these
+small deformation algorithms could not both explicitly enforce a
+one-to-one mapping and provide a high-quality registration
+solution. It is therefore necessary to exploit the large deformation
+framework which can preserve topology while capturing a wide range of transformations.
 
-Large deformation is conveniently represented as a diffeomorphism in mathematics. A diffeomorphism $\myphi$ is a globally one-to-one continuous and smooth mapping with derivatives and invertible. In other words, $\myphi^{-1}$ exists and both $\myphi$ and $\myphi^{-1}$ are invertible. The diffeomorphism forms a group $\Diff$ under the composition operation, i.e. $\myphi_1 \circ \myphi_2 \in \Diff$ when $\myphi_1, \myphi_2 \in \Diff$:
+Large deformation is conveniently represented as a diffeomorphism in
+mathematics. A diffeomorphism $\myphi$ is a globally one-to-one
+continuous and smooth mapping with a continuous and smooth inverse. In other words, $\myphi^{-1}$ exists and both $\myphi$ and $\myphi^{-1}$ are invertible. The diffeomorphism forms a group $\Diff$ under the composition operation, i.e. $\myphi_1 \circ \myphi_2 \in \Diff$ when $\myphi_1, \myphi_2 \in \Diff$:
 \begin{align}
 \Diff = \{ \myphi: \Omega \to \Omega | \myphi \text{ and } \myphi^{-1} \text{ are differentiable }\}.
 \end{align}
@@ -385,15 +394,18 @@ When $\myphi(x, t)$ is differentiable in $t$, we have the o.d.e that generates a
 \frac{\dd}{\dd t} \myphi(x, t) = \v(\myphi(x, t), t), 
 \label{eq:ode}
 \end{align}
-where $\v$ satisfies continuity conditions in order to guarantee the existence of the solution. But it is important to point out that $\v(x,t)$ does not be invertible w.r.t $x$.
+where $\v$ satisfies continuity conditions in order to guarantee the
+existence of the solution. But it is important to point out that
+$\v(x,t)$ does not need to be invertible w.r.t $x$.
 
-By introducing the time variable $t$, we can define a curve of transform between two images $\I_0$ and $\I_1$. Define $\myphi_t$ as the transform time $t$ and similarly for $\v_t$:
+By introducing the time variable $t$, we can define a curve of transformations between two images $\I_0$ and $\I_1$. Define $\myphi_t$ as the transform time $t$ and similarly for $\v_t$:
 \begin{align}
 & \myphi_t(x) = \myphi(x, t) \\
 & \v_t(x) = \v(x, t) \\
 \end{align}
 
-At time $t=0$, $\myphi_0 = \Id$; at time $t=1$, we get the final transform $\myphi = \myphi_1$. Since $\myphi_t$ has inverse transform, we can also define the transform between two time points $\myphi_{s,t}$ as:
+At time $t=0$, $\myphi_0 = \Id$; at time $t=1$, we get the final
+transform $\myphi = \myphi_1$. Since $\myphi_t$ has an inverse transform, we can also define the transform between two time points $\myphi_{s,t}$ as:
 \begin{align}
 \myphi_{s,t} = \myphi_t \circ (\myphi_s)^{-1}.
 \end{align}
@@ -406,7 +418,15 @@ We immediately have the following properties:
 \label{eq:invphi}
 \end{align}
 
-The o.d.e Eq. \ref{eq:ode} gives an important way to parameterize $\myphi$ with the time-variant velocity fields $\v$. Instead of only modeling the target transform $\myphi_{0,1}$, such a parameterization encodes the whole temporal path how one image $I_1$ is deformed into another image $I_0$. Since $\myphi_t$ is a diffeomorphism, this path is an invertible one-to-one mapping. An invertible transform $\myphi_1$ can be constructed from a time-variant velocity vector fields $\v_t$, which does not need to be invertible. Such a parameterization of $\myphi$ avoids to handle the existence of $\myphi^{-1}$ directly, which is a desirable property. In the following sections we discuss in detail how different approaches compute $\v$ in the setting of image registration. We show the relationship between different diffeomorhpism approaches and small deformation algorithms by deriving them from each other.
+The o.d.e Eq. \ref{eq:ode} gives an important way to parameterize
+$\myphi$ with the time-variant velocity fields $\v$. Instead of only
+modeling the target transform $\myphi_{0,1}$, such a parameterization
+encodes the whole temporal path that determines how one image $I_1$ is
+deformed into another image $I_0$. Since $\myphi_t$ is a
+diffeomorphism, this path is an invertible one-to-one mapping. An
+invertible transform $\myphi_1$ can be constructed from a time-variant
+velocity vector fields $\v_t$, which does not need to be
+invertible. Such a parameterization of $\myphi$ avoids handling the existence of $\myphi^{-1}$ directly, which is a desirable property. In the following sections we discuss in detail how different approaches compute $\v$ in the setting of image registration. We show the relationship between different diffeomorhpism approaches and small deformation algorithms by deriving them from each other.
 
 \subsection{Connection Between Small deformation and Diffeomorphism}
 
@@ -425,25 +445,42 @@ Let $\w = \delta t \v$ and we have:
 \myphi_{i+1} = (\Id + \w) \circ \myphi_i
 \end{align}
 
-Comparing with the composition used in Eq. \ref{eq:demoncomp} we see the difference is put the small deformation before or after the last transform $\myphi_i$. The advantage of Eq. \ref{eq:demoncomp} is that it is easier to compute the derivative of $\d_w(\myphi \circ (\Id + \w)) $; but physically it is more natural to compose the update $\w$ after the current transform $\w$. We will discuss the derivation from Beg. et al \cite{Beg2005Computing} in the Sec. \ref{sec:lddmm}.
+Comparing with the composition used in Eq. \ref{eq:demoncomp} we see
+the difference is whether the small deformation approximation occurs before or after the last transform $\myphi_i$. The advantage of Eq. \ref{eq:demoncomp} is that it is easier to compute the derivative of $\d_w(\myphi \circ (\Id + \w)) $; but physically it is more natural to compose the update $\w$ after the current transform $\w$. We will discuss the derivation from Beg. et al \cite{Beg2005Computing} in the Sec. \ref{sec:lddmm}.
 
 Another important fact about this discretization is that although $\Id + \v$ is not necessarily invertible, $\Id + \delta t \v$ is usually invertible for a small scalar $\delta$ with $(\Id + \delta t \v)^{-1} \approx \Id - \delta t \v$. Thus $\myphi_N$ is also invertible. We will revisit this in Ashburner's method \cite{Ashburner2007} and Vercauteren's methods \cite{Vercauteren2009, Vercauteren2008Symmetric}.
  
-Theoretically we only require $\v$ to be continuous to satisfy the existence of $\myphi$, it is more desirable that it is also smooth both for the numerical issue and the extra smoothness in $\myphi$. The smoothness constraint we discussed before about the small deformation $\w$ is now equivalent to the smoothness of the velocity field $\v$. The regularization term $R(\u)$ where $\u = \myphi - \Id$ naturally becomes a function on $\v$: $R(\v)$.
+Theoretically we only require $\v$ to be continuous to satisfy the
+existence of $\myphi$; it is more desirable that it is also smooth
+both for numerical issues and to provide an additional smoothness
+control on $\myphi$. The smoothness constraint we discussed before about the small deformation $\w$ is now equivalent to the smoothness of the velocity field $\v$. The regularization term $R(\u)$ where $\u = \myphi - \Id$ naturally becomes a function on $\v$: $R(\v)$.
 
 
 
 \section{Smooth Vector Fields and Sobolev Gradient}
 
-Before we discuss various forms of parameterization $\v$ of diffeomorphism $\myphi$, it is necessary to discuss the regularization on the vector fields $v$. A general prior about the final solution of the optimal transform is that it has to be a smooth one. The main aim of regularization in diffeomorphism image registration is to guarantee certain smoothness of $\v$ and thus implicitly of the resulting transform $\myphi$ and stable numerical computation of the inverse transform. 
+Before we discuss various forms of parameterization $\v$ of
+diffeomorphism $\myphi$, it is necessary to discuss the regularization
+on the vector fields $v$. A general prior about the final solution of
+the optimal transform is that it has to be a smooth one. The main aim
+of regularization in diffeomorphic image registration is to guarantee
+smoothness of $\v$ under noisy imaging conditions and thus implicitly
+of the resulting transform $\myphi$.  Velocity field regularity also
+improves stability of the numerical integration scheme for both the
+forward and the inverse transform. 
 
-Regularization term is an important factor not only in formulating the registration energy function itself, but  also in choosing the corresponding optimization schemes. A vector field $\v$ is usually defined in an Euclidean space $\L^2$ of square integrable functions. However, this vector space does not have any smooth constraints. Hilbert space was introduced in image registration problem by many researchers \cite{Trouve1998, Beg2005Computing, Hernandez2008, Zikic2010}. Hilbert space can be viewed as a space of smooth functions. This section summarizes the theoretical analysis of regularization as minimizing the image similarity directly in Hilbert space. Using the notion of optimization in Hilbert space we show that various diffeomorphism optimization schemes are unified in the same framework in the later sections.
+The regularization term is an important factor not only in formulating
+the registration energy function itself, but  also in choosing the
+corresponding optimization schemes. A vector field $\v$ is usually
+defined in an Euclidean space $\L^2$ of square integrable
+functions. However, this vector space does not have any smoothness
+constraints. Hilbert space was introduced in the image registration domain by many researchers \cite{Trouve1998, Beg2005Computing, Hernandez2008, Zikic2010}. Hilbert space can be viewed as a space of smooth functions. This section summarizes the theoretical analysis of regularization as minimizing the image similarity directly in Hilbert space. Using the notion of optimization in Hilbert space we show that various diffeomorphism optimization schemes are unified in the same framework in the later sections.
 
 
 \subsection{Examples of Regularization Terms and Their optimization Operators}
 \label{sec:regularizerexample}
 
-The smoothness of a vector field $\v$ is usually defined using its $k$-th order spatial derivatives. Before the discussion of Hilbert space, it is helpful to revisit the formulation of several common regularization terms used in the literature \cite{Horn1981,Beg2005Computing,Ashburner2007,Vercauteren2009} $\myR(\v)$ and their derivatives $\p\myR/\p\v$, which all can be derived using Euler-Lagrangian equations. Note that it requires the $k$-th order derivatives of $\v$ vanishes at the boundary of the domain $\Omega$.
+The smoothness of a vector field $\v$ is usually defined using its $k$-th order spatial derivatives. Before the discussion of Hilbert space, it is helpful to revisit the formulation of several common regularization terms used in the literature \cite{Horn1981,Beg2005Computing,Ashburner2007,Vercauteren2009} $\myR(\v)$ and their derivatives $\p\myR/\p\v$, which all can be derived using Euler-Lagrangian equations. Note that it requires the $k$-th order derivatives of $\v$ vanish at the boundary of the domain $\Omega$.
 
 \subsubsection*{Membrane Model}
 In Sec. \ref{sec:opticalflow} we already went over the membrane model:
@@ -490,12 +527,14 @@ In Sec. \ref{sec:opticalflow} we already went over the membrane model:
 \L^2 \v_i(x)
 , \; i=1 \cdots d \;. 
 \end{align}
-Note that Laplacian model and Bending model \cite{Ashburner2007} actually shares the same derivative comparing Eq. \ref{eq:dbending} and Eq. \ref{eq:dlaplacian}.
+Note that the Laplacian model and Bending model \cite{Ashburner2007}
+actually share the same derivation (comparing Eq. \ref{eq:dbending} and Eq. \ref{eq:dlaplacian}).
 
 \subsubsection*{Cauchy-Navier Model}
 \label{sec:cauchynaviermodel}
 
-This is used in Beg's paper \cite{Beg2005Computing} and it is a variant of Laplacian model. With a little abuse of notation, define the operator $\opL$ as $\opL = \gamma \Id - \alpha \L$:
+This is used in Beg's paper \cite{Beg2005Computing} and it is a
+variant of the Laplacian model. With a little abuse of notation, define the operator $\opL$ as $\opL = \gamma \Id - \alpha \L$:
 \begin{align}
 & \myR(\v) = \frac{1}{2} \int_\Omega \| \opL \v \| ^2 \dd x
 = \frac{1}{2} \int_\Omega \sum_{i=1}^d  
@@ -518,9 +557,11 @@ This is used in Beg's paper \cite{Beg2005Computing} and it is a variant of Lapla
 \end{split} 
 \end{equation}
 
-\subsubsection*{General Tikhonov Regularization and Gaussian Smoothing}
+\subsubsection*{Tikhonov Regularization and Gaussian Smoothing}
 \label{sec:gaussian}
-In Sec. \ref{sec:demons} we conveniently explains the Gaussian smoother $\tG$ relates as an inverse operator: $\tG = \left( \Id - {\sigma_x^2}/{\sigma_T^2} \L \right)^{-1}$. Strictly speaking, $\tG$ relates to the general Tikhonov Regularization \cite{Nielsen1997,Mansi2010}\footnote{Note: A typo is in \cite{Mansi2010}: the subscript of the equation in Sec 2.2 should be $1 \leq i_1, \cdots, i_k \leq d$, not $i_1 + \cdots + i_k=k$}:
+In Sec. \ref{sec:demons} we conveniently explain how the Gaussian
+smoother $\tG$ acts as an inverse operator: $\tG = \left( \Id -
+  {\sigma_x^2}/{\sigma_T^2} \L \right)^{-1}$ for some $\L$. Strictly speaking, $\tG$ relates to the general Tikhonov Regularization \cite{Nielsen1997,Mansi2010}\footnote{Note: A typo is in \cite{Mansi2010}: the subscript of the equation in Sec 2.2 should be $1 \leq i_1, \cdots, i_k \leq d$, not $i_1 + \cdots + i_k=k$}:
 \begin{align}
 \myR(\v) = \frac{1}{2} \int_\Omega \sum_{i=1}^d
 \v_i^2(x) + 
@@ -605,18 +646,18 @@ The various examples of regularization terms $\myR(\v)$ showed in the previous S
 \begin{align}
 \myR(\v) = \sum_{i=0}^K \lambda_i \ld \v^{(i)}, \v^{(i)} \rd \;,
 \end{align}
-where $v{(i)}$ is the $i$-th order derivative of $v$. For simplicity, we omit the scalar coefficient $\lambda_i$ in this section. Following the discussion in \cite{Zikic2010} {cite: miccai sobolev and original Neuberger}, using the differential operator $\opL = (\D^0, \cdots, \D^k)$ and the $L^2$ norm $\| \cdot \|_{L^2} = \ld \cdot, \cdot \rd$, the Soblev norm $\ld \cdot, \cdot \rd_{H^k}$ is defined as: 
+where $v{(i)}$ is the $i$-th order derivative of $v$. For simplicity, we omit the scalar coefficient $\lambda_i$ in this section. Following the discussion in \cite{Zikic2010} {cite: miccai sobolev and original Neuberger}, using the differential operator $\opL = (\D^0, \cdots, \D^k)$ and the $L^2$ norm $\| \cdot \|_{L^2} = \ld \cdot, \cdot \rd$, the Sobolev norm $\ld \cdot, \cdot \rd_{H^k}$ is defined as: 
 \begin{align}
 \ld \v, \v \rd_{H^k} = \sum_{i=0}^k \ld \v^{(i)}, \v^{(i)} \rd_{L^2} = \ld \opL \v, \opL \v \rd_{L^2} \;.
 \end{align}
 
-The quadratic form requires that the square of up to $k$-th order derivative of smooth function $\v$ is integrable. Thus we formalize it as $v$ belongs to the Sovolev space $H^k$:  $H^k = \{ f : \| f \|_{H^k} < \infty \}$. For simplicity, we omit $k$ in $H^k$. The inner product in Soblev space is defined as:
+The quadratic form requires that the square of up to the $k$-th order derivative of smooth function $\v$ is integrable. Thus we formalize it as $v$ belongs to the Sobolev space $H^k$:  $H^k = \{ f : \| f \|_{H^k} < \infty \}$. For simplicity, we omit $k$ in $H^k$. The inner product in Sobolev space is defined as:
 \begin{align}
 \ld \u, \v \rd_H = \ld \opL\u, \opL\v \rd_{L^2} = \ld \opL^+\opL \u, \v \rd_{L^2} \;,
 \end{align}
 where $\opL^+$ is called as the adjoint operator of $\opL$.
 
-Now we can simply written the regularization term $\myR(\v)$ as: $\myR(\v) = \| \v \|_{H^k}$. Moreover the derivative of $\myR(\v)$ has the form:
+Now we can simply write the regularization term $\myR(\v)$ as: $\myR(\v) = \| \v \|_{H^k}$. Moreover the derivative of $\myR(\v)$ has the form:
 \begin{align}
 \d_\v \myR = \opL^+\opL \v = \left ( \sum_{i=0}^k (-1)^i \L^i \right ) \v\;.
 \end{align}
@@ -653,7 +694,7 @@ Thus we can express the Sobolev gradient in terms of the $L^2$ gradient as:
 (\d_\v\myE)_{H} = (\opL^+\opL)^{-1} (\d_\v\myE)_{L^2}
 \end{align}
 
-The projecting idea we discussed in deriving Horn-Schunck optical flow Sec. \ref{sec:opticalflow} is now also validated using the Sobolev gradient by comparing Eq. \ref{eq:sobolevgradient} with Eq. \ref{eq:projection}. Also from Sec. \ref{sec:gaussian} we know that the Gaussian smoothing is the inverse operator for the gradient of the general Tikhonov regularization. This validates the Gaussian smoothing step used in the demons algorithm Alg.\ref{alg:additivedemons} and \ref{alg:compdemons}. Thus we conclude that various registration algorithms we have discussed can be unified as the minimizing the image similarity using the Sobolev gradient on the transform parameter $\v$, which is also true for the diffeomporhic approaches from Beg et al \cite{Beg2005Computing}, Vercauteren et al \cite{Vercauteren2007, Vercauteren2008Symmetric}.
+The projecting idea we discussed in deriving Horn-Schunck optical flow Sec. \ref{sec:opticalflow} is now also validated using the Sobolev gradient by comparing Eq. \ref{eq:sobolevgradient} with Eq. \ref{eq:projection}. Also from Sec. \ref{sec:gaussian} we know that the Gaussian smoothing is the inverse operator for the gradient of the first-order Tikhonov regularization. This validates the Gaussian smoothing step used in the demons algorithm Alg.\ref{alg:additivedemons} and \ref{alg:compdemons}. Thus we conclude that various registration algorithms we have discussed can be unified as minimizing the image similarity using the Sobolev gradient on the transform parameter $\v$, which is also true for the diffeomorphic approaches from Beg et al \cite{Beg2005Computing}, Vercauteren et al \cite{Vercauteren2007, Vercauteren2008Symmetric}.
 
 
 
@@ -665,7 +706,11 @@ Another interesting property about the Sobolev gradient was discussed in \cite{Z
 \opL^+\opL = \Id + \opL_1^+ \opL_1
 \end{align}
 
-Eq. \ref{eq:sobolevgradient} now can also be explained using $\left( \Id + \opL_1^+ \opL_1 \right)^{-1}$ as a preconditioner for the $L^2$ gradient of $(\d_\v\myE)_{L^2}$. This connectes the Sobolev gradient with variant Gauss methods with preconditioner like Gauss-Newton method and Levenberg-Marquardt algorithm. Thus we can also unify the Levenberg-Marquardt algorithm applied in Ashburner's method \cite{Ashburner2007}.
+Eq. \ref{eq:sobolevgradient} now can also be explained using $\left(
+  \Id + \opL_1^+ \opL_1 \right)^{-1}$ as a preconditioner for the
+$L^2$ gradient of $(\d_\v\myE)_{L^2}$. This connects the Sobolev
+gradient with various Gauss methods with preconditioner like the
+Gauss-Newton method and the Levenberg-Marquardt algorithm. Thus we can also unify the Levenberg-Marquardt algorithm applied in Ashburner's method \cite{Ashburner2007}.
 
 
 \section{Differomorphism with Time-varying Velocity Fields}
@@ -673,7 +718,7 @@ Eq. \ref{eq:sobolevgradient} now can also be explained using $\left( \Id + \opL_
 
 We now have formalized the unifying registration framework using the Sobolev gradient. From this section, we study several forms of parameterization $\v$ applied in large deformation algorithms and discuss the connections among them and small deformation algorithms.
 
-Small deformation transform normally uses a small displacement field $\u$ to model the transform $\myphi = x + \u$. In contrast, a large deformation transform introduce an extra time variable $t$ to encode the warping path $\myphi(x,t)$ between two images. The first parameterization is the o.d.e Eq. \ref{eq:ode}:
+Small deformation transforms normally use a small displacement field $\u$ to model the mapping $\myphi = x + \u$. In contrast, a large deformation transform introduce an extra time variable $t$ to encode the warping path $\myphi(x,t)$ between two images. The first parameterization is the o.d.e Eq. \ref{eq:ode}:
 \begin{align}
 \tag{\ref{eq:ode}}
 \frac{\dd}{\dd t} \myphi_t(x) = \v_t(\myphi_t(x)), 
@@ -690,11 +735,16 @@ Beg et al. proposed Large Deformation Diffeomorphic Metric Mapping (LDDMM) algor
 \frac{\sigma^2}{2}\int_{0}^{1} \| \opL v_t\|^2 \dd t \;,
 \label{eq:lddmm}
 \end{align}
-where $\myphi_{1,0}$ is defined by Eq. \ref{eq:invphi} in Sec. \ref{sec:diffgroup}, the operator $\opL$ represents the Cauchy-Navier regularizer $\myR(\v)$: $\opL = \gamma \Id - \alpha \L$ in Sec. \ref{sec:cauchynaviermodel} with corresponding Hilbert space $H$. The 
-Note that we omit the integral over the spatial domain $\int_x \cdot\, \dd x$ for simplicity since $\v$ can be reinterpret as a vector with an element for each pixel. 
-The image similarity term $\myS(\v) = \frac{1}{2} \| I_0 \circ \myphi_{1,0} - I_1 \|^2 $.
+where $\myphi_{1,0}$ is defined by Eq. \ref{eq:invphi} in
+Sec. \ref{sec:diffgroup}, the operator $\opL$ represents the
+Cauchy-Navier regularizer $\myR(\v)$: $\opL = \gamma \Id - \alpha \L$
+in Sec. \ref{sec:cauchynaviermodel} with corresponding Hilbert space
+$H$. Note that we omit the integral over the spatial domain $\int_x
+\cdot\, \dd x$ for simplicity since $\v$ can be reinterpreted as a
+vector with an element for each pixel. The image similarity term is
+then $\myS(\v) = \frac{1}{2} \| I_0 \circ \myphi_{1,0} - I_1 \|^2 $.
 
-Beg et al gave a rigorous way in computing the derivative of $\d_\v E$ in \cite{Beg2005Computing}. The key in the proof is to introduce the Gateaux variation of $\myphi_{s,t}$ w.r.t $\v$ (Lemma 2.1 from \cite{Beg2005Computing}). A small perturbation of $\v$ at time $r$ (i.e. $h_r$) affects all the transform $\myphi_t$ for $t>r$ accumulatively. 
+Beg et al gave a rigorous way in computing the derivative of $\d_\v E$ in \cite{Beg2005Computing}. The key in the proof is to introduce the Gateaux variation of $\myphi_{s,t}$ w.r.t $\v$ (Lemma 2.1 from \cite{Beg2005Computing}). A small perturbation of $\v$ at time $r$ (i.e. $h_r$) affects all the transform $\myphi_t$ for $t>r$ cumulatively. 
 We wrote this without proof here:
 \begin{align}
 \p_\h \myphi_{s,t} = \D\myphi_{s,t} 
@@ -704,7 +754,6 @@ We wrote this without proof here:
 \right)
 ^{-1} \h_r \circ \myphi_{s, r} dr
 \end{align}
-
 
 Although it is hard to define the Fr{\'e}chet derivative for $\myphi$, which means that the simple chain rule could not be applied directly to compute $\d_\v \myS$, Beg however showed that $\p_\v \myS$ still has a nice structure related to the F\'echet derivative in the proof of Theorem 2.1 in \cite{Beg2005Computing}:
 \begin{align}
@@ -741,14 +790,14 @@ and $\d_{\v_t} \myE_t$ is defined as:
 \label{eq:lddmmgrad}
 \end{align}
 
-Beg et al proposed to use Soblev gradient instead of this $L^2$ gradient. From Eq. \ref{eq:sobolevgradient}, we get the gradient:
+Beg et al proposed to use the Sobolev gradient instead of this $L^2$ gradient. From Eq. \ref{eq:sobolevgradient}, we get the gradient:
 \begin{align}
 (\d_{\v_t} \myE_t)_H = \sigma^2 \v_t - (\opL^+\opL)^{-1}(|\D\myphi_{t,1}|(\J_t^0 - \J_t^1)\D(\J_t^0))
 \end{align}
 
 \subsection{Numerical Algorithm of LDDMM}
 \label{sec:lddmmalg}
-In it numerical implementation, the time-varying velocity fields are discretized into $N$ time points $(v_{t_i} )_{0 \leq i \leq N-1}$. For each time point $i$, a standard steepest descent scheme is applied:
+In its numerical implementation, the time-varying velocity fields are discretized into $N$ time points $(v_{t_i} )_{0 \leq i \leq N-1}$. For each time point $i$, a standard steepest descent scheme is applied:
 \begin{align}
 \v_{t_i}  \leftarrow \v_{t_i} - \epsilon (\d_{\v_{t_i}} \myE_{t_i})_H \; .
 \end{align}
@@ -757,7 +806,7 @@ The inverse of $\opL^+\opL$ in the Soblev gradient can be computed from the Four
 
 One has to compute $\myphi_{t,1}$ and $\myphi_{t,0}$ for $(\d_{\v_{t_i}} \myE_{t_i})_H$ from Eq. \ref{eq:lddmmds}. $\myphi_{t,1}$ can be computed directly by composing $ (1/N)\myphi_{t_{N-1}} \circ \cdots \circ (1/N) \myphi_{t_{i}}$. For $\myphi_{t,0}$, one needs to compute the inverse of $\myphi_{0,t}$. Beg proposed to use a  Semi-Lagrangian scheme in Sec. 3.3 of \cite{Beg2005Computing} for stable numerical computation, which is not covered in this paper. But in general to get the inverse transform is computationally intensive using a series of $v_t$. 
 
-LDDMM method requires to store $N$ velocity fields. In each iteration, it needs to compute also $N$ gradient fields, $N$ compositions for $\myphi_{t,1}$ and solve $N$ inverse problems. Overall, this is a very expensive algorithm.
+LDDMM method requires that one store $N$ velocity fields. In each iteration, it needs to compute also $N$ gradient fields, $N$ compositions for $\myphi_{t,1}$ and solve $N$ inverse problems. Overall, this is a very expensive algorithm.
 
 
 \subsection{Comparison with Horn-Schunck Optical Flow}
@@ -766,9 +815,9 @@ Revisiting the Horn-Schunck optical flow update Eq. \ref{eq:opticalflow} with th
 \begin{align}
 \d_\u\myE = (\I_0 \circ \myphi - \I_1) \D\I_1 - \lambda \L \u \;.
 \end{align}
-Compare it with the gradient at time $t$ of LDDMM (Eq. \ref{eq:lddmmgrad}), $\d_{\v_t} \myE_t$ is conveniently explained as the optical flow between $J_t^0$ and $J_t^1$ at time $t$, weighted by the Jacobian determinant $|\D\myphi_{t,1}|$ introduced by change of variable of $ y = \myphi_{t,1}(x)$.\footnote{One small difference is that the image similarity is defined as $\|I_0 \circ \myphi_{1,0} - I_1\|^2$, not $\|I_1 \circ \myphi_{0,1} - I_0\|^2$ (Eq.\ref{eq:SSD}). } 
+Comparing with the gradient at time $t$ of LDDMM (Eq. \ref{eq:lddmmgrad}), $\d_{\v_t} \myE_t$ is conveniently explained as the optical flow between $J_t^0$ and $J_t^1$ at time $t$, weighted by the Jacobian determinant $|\D\myphi_{t,1}|$ introduced by change of variable of $ y = \myphi_{t,1}(x)$.\footnote{One small difference is that the image similarity is defined as $\|I_0 \circ \myphi_{1,0} - I_1\|^2$, not $\|I_1 \circ \myphi_{0,1} - I_0\|^2$ (Eq.\ref{eq:SSD}). } 
 
-Thus LDDMM algorithm can be summarized as computing $v_{t_i}$ in the way of the optical flow for all time $t_i$ and composing all $(v_{t_i})$ to get $\myphi_{t, 1}$ and $\myphi_{t, 0}$.
+Thus the LDDMM algorithm can be summarized as computing $v_{t_i}$ in the way of the optical flow for all time $t_i$ and composing all $(v_{t_i})$ to get $\myphi_{t, 1}$ and $\myphi_{t, 0}$.
 
 
 \subsection{Comparision with Compositive Demons}
@@ -780,7 +829,9 @@ The advantage of such a greedy way is that this does not require to store all th
 
 \section{Diffeomorphism with Stationary Velocity Fields}
 
-LDDMM method \cite{Beg2005Computing} uses the time varying velocity fields $\v_t$ to parameterize the diffeomorphism $\myphi$. Although the rigorous derivation, the algorithm has a high complexity and also requires stable numerical methods in solving the inverse transform. One way to simplify the problem is to use stationary velocity fields $\v$, which does not change across time, to generate the diffeomorphism \cite{Arsigny2006,Ashburner2007,Vercauteren2007,Vercauteren2008Symmetric,Hernandez2009}. The o.d.e that generates the diffeomorphism is now written as:
+The LDDMM method \cite{Beg2005Computing} uses the time varying
+velocity fields $\v_t$ to parameterize the diffeomorphism
+$\myphi$. Although the derivation is rigorous, the algorithm has a high complexity and also requires stable numerical methods in solving the inverse transform. One way to simplify the problem is to use stationary velocity fields $\v$, which does not change across time, to generate the diffeomorphism \cite{Arsigny2006,Ashburner2007,Vercauteren2007,Vercauteren2008Symmetric,Hernandez2009}. The o.d.e that generates the diffeomorphism is now written as:
 \begin{align}
 \frac{\dd}{\dd t} \myphi_t(x) = \v(\myphi_t(x)), 
 \end{align}
@@ -799,7 +850,14 @@ Although not every diffeomorphism can be parameterized by stationary velocity fi
 
 \subsection{Computation of Exponential Mapping}
 
-In Sec. \ref{sec:lddmmalg} we discussed that computing $\myphi$ requiring $N$ times composition of vector fields and solve $N$ times the p.d.e of the inverse transform $\myphi^{-1}$. With the stationary field, such complexity can be reduced to $\log N$ times composition for both $\myphi$ and $\myphi^{-1}$. 
+In Sec. \ref{sec:lddmmalg} we discussed that computing $\myphi$
+requiring $N$ times composition of vector fields and solve $N$ times
+the p.d.e of the inverse transform $\myphi^{-1}$. \footnote{In fact,
+  this is the minimal amout of computation required.  Increased
+  integration accuracy requires a dense sampling of the o.d.e. in time
+  and can require many more integration points than discretization
+  points, in particular if an accurate/consistent forward and inverse
+  transformation is desired.}  With the stationary field, such complexity can be reduced to $\log N$ times composition for both $\myphi$ and $\myphi^{-1}$. 
 
 Arsigny et al \cite{Arsigny2006} introduced an efficient method to compute the exponential mapping $\myphi = \exp(\u)$ by exploiting the following property:
 \begin{align}
@@ -861,17 +919,25 @@ Previously we discussed that it is expensive to compute this gradient in LDDMM. 
 % \end{split}
 % \end{equation}
 
-Ashburner used Levenberg-Marquardt algorithm in $L^2$ space as the optimization scheme, for which the second order derivatives of the energy also was computed. From the discussion in Sec. \ref{sec:sobolevprecondition}, one could also use the gradient descent in the Sobolev space acting as the preconditioner, which was used in Beg et al's LDDMM algorithm \cite{Beg2005Computing}. 
+Ashburner used the Levenberg-Marquardt algorithm in $L^2$ space as the optimization scheme, for which the second order derivatives of the energy also was computed. From the discussion in Sec. \ref{sec:sobolevprecondition}, one could also use the gradient descent in the Sobolev space acting as the preconditioner, which was used in Beg et al's LDDMM algorithm \cite{Beg2005Computing}. 
 
 % \subsection{DARTEL regularization and Gauss-Newton Method to Soblev gradient}
 \subsection{Comparison with LDDMM}
 
-DARTEL and LDDMM both models the transform from the o.d.e generator. Both algorithms computes the intergration over time using $N$ discrteized time points. Both have a rigorous derivation of the energy gradient. 
-Howevery, DARTEL algorithm used the stationary velocity field $v$ as the parameterization of the transform $\myphi$. DARTEL is an simplified way to approximate LDDMM by approximating the velocity fields at all time points with their average.
+DARTEL and LDDMM both models the transform from the o.d.e generator. Both algorithms compute the intergration over time using $N$ discretized time points. Both have a rigorous derivation of the energy gradient. 
+However, the DARTEL algorithm used the stationary velocity field $v$
+as the parameterization of the transform $\myphi$. DARTEL is a simplified way to approximate LDDMM by approximating the velocity fields at all time points with their average.
 
-The update of velocity field can be viewed as the average of the optical flow at every point. Instead of having to storing the velocity field at every time points, DARTEL only needs store one velocity field. LDDMM needs to compose $N$ times of different velocity fields to get the transform and compute the gradient at each time point. DARTEL only needs $\log N$ times composition to compute both transform and the gradient. 
+The DARTEL update of the velocity field can be viewed as the average
+of the optical flow at every time point. Instead of having to store
+the velocity field at every time point, DARTEL only stores one
+velocity field. LDDMM needs to compose (minimum) $N$ different velocity fields to get the transform and compute the gradient at each time point. DARTEL only needs $\log N$ times composition to compute both transform and the gradient. 
 
-Another difference between DARTEL and LDDMM is that optimizing in $L^2$ space or the Sobolev space. DARTEL computes sparse matrix inverse used in each Levenberg-Marquardt iteration. Although Ashburner proposed to use multi-grid method with Gauss-Seidel method, such a computation complexity is still higher compared to the convolution approach in the Fourier domain used in LDDMM. The higher frequency in the operator $\opL^+\opL$ used in $L^2$ gradient also leads to numerical unstablities.
+Another difference between DARTEL and LDDMM is whether the
+optimization occurs in$L^2$ space or the Sobolev space. DARTEL
+computes sparse matrix inverse used in each Levenberg-Marquardt
+iteration. Although Ashburner proposed to use the multi-grid method with
+Gauss-Seidel iteration, such a computation still has high complexity compared to the convolution approach in the Fourier domain used in LDDMM. The higher frequency in the operator $\opL^+\opL$ used in $L^2$ gradient also leads to numerical instability.
 
 
 
